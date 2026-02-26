@@ -36,10 +36,7 @@ public class FlowMethods {
         // response.prettyPrint();
 
         JsonPath jsonPath = response.jsonPath();
-        String tokenValue = jsonPath.getString("token.val");
-        // System.out.println("tokenValue = " + tokenValue);
-
-        return tokenValue;
+        return jsonPath.getString("token.val");
     }
 
     public static void checkAPIResponse(String clientId) {

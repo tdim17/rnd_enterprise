@@ -7,7 +7,6 @@ import com.volta.core.FlowMethods;
 import com.volta.pojo.ExportItem;
 import com.volta.pojo.LinkCheckItem;
 import com.volta.pojo.VerifyDataItem;
-import com.volta.tests.TestBrokenLinks;
 import io.restassured.path.json.JsonPath;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,7 +25,6 @@ public class Utils {
 
     /**
      * Sends an HTTP GET request to the specified URL and returns the HTTP response code.
-     *
      * The method opens an HttpURLConnection for the given link, follows all redirects
      * to reach the final destination URL, and retrieves the server response code.
      *
@@ -67,7 +65,6 @@ public class Utils {
 
     /**
      * Outputs all extracted link entries for inspection and debugging purposes.
-     *
      * The method iterates through the provided list of LinkCheckItem objects,
      * normalizes each raw link value, and prints id, type, normalized URL,
      * and original link to the console. It also prints the total number of
@@ -92,7 +89,6 @@ public class Utils {
 
     /**
      * Filters duplicate links within the same id and returns a collection of unique items.
-     *
      * The method accepts a list of LinkCheckItem objects (id, type, link) and removes
      * duplicates so that the same id cannot contain multiple identical links.
      * Uniqueness is determined by the LinkCheckItem equality logic and preserved
