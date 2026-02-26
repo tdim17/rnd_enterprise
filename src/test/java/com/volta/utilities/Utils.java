@@ -3,6 +3,7 @@ package com.volta.utilities;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.volta.core.ConfigurationReader;
+import com.volta.core.FlowMethods;
 import com.volta.pojo.ExportItem;
 import com.volta.pojo.LinkCheckItem;
 import com.volta.pojo.VerifyDataItem;
@@ -179,9 +180,9 @@ public class Utils {
         }
         System.out.println("_________________________________________________");
         System.out.println();
-        System.out.println("Total Amount of ID    = " + TestBrokenLinks.getIdTotalCount());
-        System.out.println("Retrieved ID Amount   = " + TestBrokenLinks.getIdRetrievedListSize());
-        System.out.println("Amount of Raw URLs    = " + TestBrokenLinks.getRawLinkListSize());
+        System.out.println("Total Amount of ID    = " + FlowMethods.getIdTotalCount());
+        System.out.println("Retrieved ID Amount   = " + FlowMethods.getIdRetrievedListSize());
+        System.out.println("Amount of Raw URLs    = " + FlowMethods.getRawLinkListSize());
         System.out.println("Amount of Unique URLs = " + count);
         System.out.println("Amount of Broken URLs = " + brokenLinks.size());
         System.out.println("_________________________________________________");
