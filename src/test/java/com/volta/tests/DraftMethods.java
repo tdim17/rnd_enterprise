@@ -43,7 +43,7 @@ public class DraftMethods {
         JsonPath jsonPath = response.jsonPath();
         tokenValue = jsonPath.getString("token.val");
 
-        // System.out.println("tokenValue = " + tokenValue);
+        System.out.println("tokenValue = " + tokenValue);
 
         // >>>>>>>>>>>>> System.out.println("------------------------------");
     }

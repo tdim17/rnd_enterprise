@@ -34,7 +34,7 @@ public class Driver {
             /*
             We will read our browserType from the configuration.properties file.
             This way, we can control which browser is opened from outside our code.   */
-            String browserType = ConfigurationReaderOutdated.getProperty("browser");
+            String browserType = ConfigurationReader.getProperty("browser");
 
             // My addition to have default browser just in case of getProperty("browser"); is empty!
             if (browserType == null) {
@@ -84,7 +84,7 @@ public class Driver {
     }
 
     private static long getImplicitWait() {
-        String wait = ConfigurationReaderOutdated.getProperty("implicitWait");
+        String wait = ConfigurationReader.getProperty("implicitWait");
         return (wait == null || wait.isBlank()) ? 10 : Long.parseLong(wait);
     }
 
