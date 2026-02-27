@@ -19,7 +19,7 @@ public class FlowMethods {
     @Getter
     private static int idTotalCount = 0;
     @Getter
-    private static int idRetrievedListSize = 0;
+    private static int idRetrievedListSize;
 
 
     public static String getToken(String clientId) {
@@ -39,14 +39,14 @@ public class FlowMethods {
         return jsonPath.getString("token.val");
     }
 
-    public static void checkAPIResponse(String clientId) {
+    public static Response getResponse(String clientId) {
 
         int limitedIdNumber = Integer.parseInt(ConfigurationReader.getProperty("limitedIdNumberInResponse"));
         int offsetParam = Integer.parseInt(ConfigurationReader.getProperty("offsetParam"));
 
         String tokenValue = getToken(clientId);
 
-        Response response = RestAssured.given()
+        return RestAssured.given()
                 .accept("application/json")
                 .header("Client-Id", clientId)
                 .queryParam("limit", limitedIdNumber)
@@ -55,21 +55,29 @@ public class FlowMethods {
                 .header("Authorization", "Bearer " + tokenValue)
                 .when()
                 .get("exportContentVerify");
+    }
 
-        // response.prettyPrint();
-        // System.out.println("response.body().asString() = " + response.body().asPrettyString());
-        // response.body();
+
+
+
+    public static void checkAPIResponse(String clientId) {
+
+        Response response = getResponse(clientId);
 
         // Make a parsing of the string:
         JsonPath jsPath = response.jsonPath();
         // System.out.println("jsPath.prettyPrint() = " + jsPath.prettyPrint());
 
         idTotalCount = response.path("itemsCount");
-        // System.out.println("Total Amount of ID     = " + itemsCount);
+        // System.out.println("Total Amount of ID in system = " + itemsCount);
 
         List<Integer> listId = response.path("data.id");
         idRetrievedListSize = listId.size();
         System.out.println("Retrieved Amount of ID = " + idRetrievedListSize);
+
+
+
+        // 00000000000000000000000000000000000000000000000000
 
 
         List<LinkCheckItem> listAll = Utils.retrieveAllHrefAndSrcToList(jsPath);
