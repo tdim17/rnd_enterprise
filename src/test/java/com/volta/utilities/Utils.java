@@ -107,7 +107,7 @@ public class Utils {
             String type = each.getType();
             String linkRaw = each.getLink();
         }
-        System.out.println("UniqueURLs List size = " + set.size());
+//        System.out.println("UniqueURLs List size = " + set.size());
         return set;
     }
 
@@ -174,9 +174,9 @@ public class Utils {
                 NdJsonWriter.write(item);
             }
         }
-        System.out.println("_________________________________________________");
+
         System.out.println();
-        System.out.println("Total Amount of ID    = " + FlowMethods.getIdTotalCount());
+//        System.out.println("Total Amount of ID    = " + FlowMethods.getIdTotalCount());
         System.out.println("Retrieved ID Amount   = " + FlowMethods.getIdRetrievedListSize());
         System.out.println("Amount of Raw URLs    = " + FlowMethods.getRawLinkListSize());
         System.out.println("Amount of Unique URLs = " + count);
@@ -184,6 +184,7 @@ public class Utils {
         System.out.println("_________________________________________________");
         System.out.println();
         System.out.println("Broken URLs List: " + brokenLinks);
+        System.out.println("*********************************************************************************************************************************");
     }
 
     /**
@@ -255,6 +256,11 @@ public class Utils {
             // Retrieves the field 'verifyData' as a String to use it with Jsoup.parse() to parse is as an HTML
             String verifyDataHTML = jsPath.getString("data[" + i + "].verifyData");
             // System.out.println("verifyData String = " + verifyDataHTML);
+
+            if (verifyDataHTML == null || verifyDataHTML.isBlank()) {
+                continue;
+            }
+
 
             /** For Attention - What Jsoup.parse() is for:
              * Jsoup.parse() - parses HTML document (verifyDataHTML - in our current case) - > returns a DOM structure = Document.
