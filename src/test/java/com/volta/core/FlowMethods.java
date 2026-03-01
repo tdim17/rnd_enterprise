@@ -15,11 +15,11 @@ import java.util.List;
 public class FlowMethods {
 
     @Getter
-    private static int rawLinkListSize = 0;
+    private static int rawLinkListSize;
     @Getter
-    private static int idTotalCount = 0;
+    private static int idTotalCount;
     @Getter
-    private static int idRetrievedListSize = 0;
+    private static int idRetrievedListSize;
 
 
     public static String getToken(String clientId) {
@@ -39,14 +39,11 @@ public class FlowMethods {
         return jsonPath.getString("token.val");
     }
 
-    public static void checkAPIResponse(String clientId) {
-
-        int limitedIdNumber = Integer.parseInt(ConfigurationReader.getProperty("limitedIdNumberInResponse"));
-        int offsetParam = Integer.parseInt(ConfigurationReader.getProperty("offsetParam"));
+    public static Response getResponse(String clientId, int limitedIdNumber, int offsetParam ) {
 
         String tokenValue = getToken(clientId);
 
-        Response response = RestAssured.given()
+        return RestAssured.given()
                 .accept("application/json")
                 .header("Client-Id", clientId)
                 .queryParam("limit", limitedIdNumber)
@@ -55,35 +52,36 @@ public class FlowMethods {
                 .header("Authorization", "Bearer " + tokenValue)
                 .when()
                 .get("exportContentVerify");
+    }
 
-        // response.prettyPrint();
-        // System.out.println("response.body().asString() = " + response.body().asPrettyString());
-        // response.body();
 
-        // Make a parsing of the string:
-        JsonPath jsPath = response.jsonPath();
-        // System.out.println("jsPath.prettyPrint() = " + jsPath.prettyPrint());
+    public static  List<Integer> retrieveListOfAllId(Response response) {
 
         idTotalCount = response.path("itemsCount");
-        // System.out.println("Total Amount of ID     = " + itemsCount);
 
         List<Integer> listId = response.path("data.id");
         idRetrievedListSize = listId.size();
-        System.out.println("Retrieved Amount of ID = " + idRetrievedListSize);
+
+        return listId;
+    }
 
 
+    public static List<LinkCheckItem> retrieveListOfAllLinks(Response response) {
+
+        JsonPath jsPath = response.jsonPath();
         List<LinkCheckItem> listAll = Utils.retrieveAllHrefAndSrcToList(jsPath);
         rawLinkListSize = listAll.size();
-        System.out.println("Raw URLs list Size = " + rawLinkListSize);
-        System.out.println("--------------------------------");
-        // System.out.println("listAll: " + listAll);
+        return listAll;
+    }
 
+    public static void validate(List<LinkCheckItem> listAll){
         // Different options to use:
         // Utils.itemLIstExtractor(listAll);
         // Utils.itemLIstUniquesExtractor(listAll);
         // Enterprise validator:
         Utils.itemLIstValidator(listAll);
     }
+
 
     public static void sendReportToAPI(String clientId) throws IOException {
 
