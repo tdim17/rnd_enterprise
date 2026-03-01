@@ -4,7 +4,6 @@ import com.volta.core.ConfigurationReader;
 import com.volta.core.FlowMethods;
 import com.volta.pojo.LinkCheckItem;
 import io.restassured.response.Response;
-import org.apache.logging.log4j.core.util.JsonUtils;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
