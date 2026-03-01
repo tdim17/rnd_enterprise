@@ -27,12 +27,13 @@ public class TestBrokenLinks {
         System.out.println("OffsetParam = " + offsetParam);
         System.out.println("ID-Numbers limit = " + idNumberLimit);
         System.out.println("Iterations limit = " + iterationsLimit);
-        System.out.println("=======================================");
+        System.out.println("====================================================================");
         System.out.println();
 
 
         while (true) {
             System.out.println("Iteration #" + counter);
+            System.out.println("Unique URLs List:");
             Response response = FlowMethods.getResponse(clientId, idNumberLimit, offsetParam);
 
             List<Integer> listOfAllId = FlowMethods.retrieveListOfAllId(response);
@@ -54,7 +55,7 @@ public class TestBrokenLinks {
 
         System.out.println("Total Amount of ID = " + FlowMethods.getIdTotalCount());
 
-        // FlowMethods.sendReportToAPI(clientId);
+        FlowMethods.sendReportToAPI(clientId);
 
     }
 
