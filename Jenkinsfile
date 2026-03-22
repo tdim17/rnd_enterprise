@@ -5,7 +5,7 @@ pipeline {
     parameters {
         string(name: 'LIMITED_ID', defaultValue: '3')
         string(name: 'OFFSET', defaultValue: '0')
-        string(name: 'ITERATIONS_LIMIT', defaultValue: '3')
+        string(name: 'ITERATIONS_LIMIT', defaultValue: '1')
     }
 
     // Main pipeline execution stages
