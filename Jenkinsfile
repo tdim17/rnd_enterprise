@@ -11,6 +11,14 @@ pipeline {
     // Main pipeline execution stages
     stages {
 
+        // Clone source code from repository
+        //stage('Checkout') {
+        //    steps {
+        //        git branch: 'main',
+        //        url: 'https://github.com/tdim17/rnd_enterprise.git'
+        //   }
+        // }
+
         // Prepare and override configuration.properties
         stage('Config file') {
             steps {
