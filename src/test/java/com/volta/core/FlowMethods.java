@@ -24,7 +24,7 @@ public class FlowMethods {
 
     public static String getToken(String clientId) {
 
-        RestAssured.baseURI = ConfigurationReader.getProperty("baseURI2");  // .getProperty("baseURI") - correct!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        RestAssured.baseURI = ConfigurationReader.getProperty("baseURI");
 
         Response response = RestAssured.given()
                 .accept("application/json")
