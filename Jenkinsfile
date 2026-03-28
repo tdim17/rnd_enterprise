@@ -92,7 +92,7 @@ pipeline {
             string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
         ]) {
             powershell """
-            \$msg = "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}"
+            \$msg = "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}`nAllure Report: ${env.BUILD_URL}allure"
             Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
             -Method Post `
             -Body @{
