@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.13.2</version>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -61,8 +61,6 @@
             <version>1.15.4</version>
         </dependency>
 
-
-
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
      it's a library provided by Apache Foundation for reading and writing MS Excel -->
         <dependency>
@@ -90,13 +88,37 @@
         If we include only log4j-api, the methods will exist but nothing will be logged.
         If we include only log4j-core, we have the engine but no way to call it from our code. -->
 
-
-
-
-
-
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.27.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <allure.results.directory>
+                            ${project.build.directory}/allure-results
+                        </allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <!-- only for local Allure preview -->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>2.12.0</version>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

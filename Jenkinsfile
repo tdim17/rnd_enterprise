@@ -77,6 +77,15 @@ pipeline {
 
     // Post-build notifications and status handling
     post {
+
+    always {
+        allure([
+            includeProperties: false,
+            jdk: '',
+            results: [[path: 'target/allure-results']]
+        ])
+    }
+
     failure {
         withCredentials([
             string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
