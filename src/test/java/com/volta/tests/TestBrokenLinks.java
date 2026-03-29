@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 
-public class TestBrokenLinks {
+public class TestBrokenLinks extends BaseTest {
 
     @Test
     void testLinkChecker() throws IOException {
