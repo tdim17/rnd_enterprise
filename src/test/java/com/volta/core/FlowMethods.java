@@ -25,7 +25,7 @@ public class FlowMethods {
     @Step("Getting auth token for client: {clientId}")
     public static String getToken(String clientId) {
 
-        RestAssured.baseURI = ConfigurationReader.getProperty("baseURI");
+        // RestAssured.baseURI = ConfigurationReader.getProperty("baseURI"); // I switched to the BaseTest architecture
 
         Response response = RestAssured.given()
                 .accept("application/json")
