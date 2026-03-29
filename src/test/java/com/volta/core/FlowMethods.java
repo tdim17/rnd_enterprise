@@ -3,6 +3,7 @@ package com.volta.core;
 import com.volta.pojo.LinkCheckItem;
 import com.volta.utilities.NdJsonWriter;
 import com.volta.utilities.Utils;
+import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
@@ -21,7 +22,7 @@ public class FlowMethods {
     @Getter
     private static int idRetrievedListSize;
 
-
+    @Step("Getting auth token for client: {clientId}")
     public static String getToken(String clientId) {
 
         RestAssured.baseURI = ConfigurationReader.getProperty("baseURI");
@@ -39,6 +40,7 @@ public class FlowMethods {
         return jsonPath.getString("token.val");
     }
 
+    @Step("Fetching content data (limit={limitedIdNumber}, offset={offsetParam})")
     public static Response getResponse(String clientId, int limitedIdNumber, int offsetParam ) {
 
         String tokenValue = getToken(clientId);
@@ -54,7 +56,7 @@ public class FlowMethods {
                 .get("exportContentVerify");
     }
 
-
+    @Step("Extracting list of IDs from response")
     public static  List<Integer> retrieveListOfAllId(Response response) {
 
         idTotalCount = response.path("itemsCount");
@@ -65,7 +67,7 @@ public class FlowMethods {
         return listId;
     }
 
-
+    @Step("Extracting all links from response")
     public static List<LinkCheckItem> retrieveListOfAllLinks(Response response) {
 
         JsonPath jsPath = response.jsonPath();
@@ -74,6 +76,7 @@ public class FlowMethods {
         return listAll;
     }
 
+    @Step("Validating links for broken URLs")
     public static void validate(List<LinkCheckItem> listAll){
         // Different options to use:
         // Utils.itemLIstExtractor(listAll);
@@ -82,7 +85,7 @@ public class FlowMethods {
         Utils.itemLIstValidator(listAll);
     }
 
-
+    @Step("Sending broken links report to API")
     public static void sendReportToAPI(String clientId) throws IOException {
 
         String ndJsonName = ConfigurationReader.getProperty("reportNdJson");
@@ -107,7 +110,7 @@ public class FlowMethods {
         System.out.println(response.body().prettyPrint());
     }
 
-
+    @Step("Clearing NDJSON report file")
     public static void cleanNdJsonFile() {
         NdJsonWriter.clear();
     }
