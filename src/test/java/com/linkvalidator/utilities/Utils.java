@@ -15,7 +15,7 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +39,7 @@ public class Utils {
 
             /* Object of HTTP Connection (with specified URL) */
             HttpURLConnection conn
-                    = (HttpURLConnection) new URL(link).openConnection();
+                    = (HttpURLConnection) URI.create(link).toURL().openConnection();
 
             conn.setRequestProperty(
                     "User-Agent",
@@ -389,9 +389,8 @@ public class Utils {
      *
      * @param file_name name or path of the NDJSON file
      * @return number of unique id elements found in the file
-     * @throws JsonProcessingException if NDJSON parsing fails
      */
-    public static int countIdNumbers(String file_name) throws JsonProcessingException {
+    public static int countIdNumbers(String file_name) {
         List<ExportItem> exportItems = readFromNdJson(file_name);
         // System.out.println("exportItems List >>>> " + exportItems);
         return exportItems.size();
