@@ -1,4 +1,4 @@
-package com.volta.pojo;
+package com.linkvalidator.pojo;
 
 import lombok.Data;
 

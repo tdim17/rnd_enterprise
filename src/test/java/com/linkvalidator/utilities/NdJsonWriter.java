@@ -1,11 +1,13 @@
-package com.volta.utilities;
+package com.linkvalidator.utilities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.volta.core.ConfigurationReader;
-import com.volta.pojo.LinkCheckItem;
+import com.linkvalidator.core.ConfigurationReader;
+import com.linkvalidator.pojo.LinkCheckItem;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class NdJsonWriter {
 
@@ -26,8 +28,8 @@ public class NdJsonWriter {
     }
 
     public static void clear() {
-        try (FileWriter writer = new FileWriter(FILE_PATH, false)) {
-            // просто открыли с append=false → файл обнулился
+        try {
+            Files.writeString(Path.of(FILE_PATH), "");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

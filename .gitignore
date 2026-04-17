@@ -3,10 +3,13 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
+.allure/
 
 ### IntelliJ IDEA ###
 .idea/
 *.iml
+hs_err_pid*.log
+src/main/
 
 ### Eclipse ###
 .apt_generated
@@ -35,6 +38,7 @@ build/
 
 # Local config / secrets
 Configuration.properties
+src/test/resources/blocked-hosts.txt
 
 # Runtime artifacts
 *.ndjson
