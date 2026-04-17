@@ -1,8 +1,8 @@
-package com.volta.utilities;
+package com.linkvalidator.utilities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.volta.core.ConfigurationReader;
-import com.volta.pojo.LinkCheckItem;
+import com.linkvalidator.core.ConfigurationReader;
+import com.linkvalidator.pojo.LinkCheckItem;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

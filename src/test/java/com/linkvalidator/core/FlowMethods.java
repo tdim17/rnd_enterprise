@@ -1,8 +1,8 @@
-package com.volta.core;
+package com.linkvalidator.core;
 
-import com.volta.pojo.LinkCheckItem;
-import com.volta.utilities.NdJsonWriter;
-import com.volta.utilities.Utils;
+import com.linkvalidator.pojo.LinkCheckItem;
+import com.linkvalidator.utilities.NdJsonWriter;
+import com.linkvalidator.utilities.Utils;
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;

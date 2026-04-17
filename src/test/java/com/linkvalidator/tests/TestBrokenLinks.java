@@ -1,8 +1,8 @@
-package com.volta.tests;
+package com.linkvalidator.tests;
 
-import com.volta.core.ConfigurationReader;
-import com.volta.core.FlowMethods;
-import com.volta.pojo.LinkCheckItem;
+import com.linkvalidator.core.ConfigurationReader;
+import com.linkvalidator.core.FlowMethods;
+import com.linkvalidator.pojo.LinkCheckItem;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
-package com.volta.tests;
+package com.linkvalidator.tests;
 
-import com.volta.core.ConfigurationReader;
+import com.linkvalidator.core.ConfigurationReader;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;

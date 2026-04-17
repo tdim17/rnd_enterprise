@@ -1,4 +1,4 @@
-package com.volta.utilities;
+package com.linkvalidator.utilities;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

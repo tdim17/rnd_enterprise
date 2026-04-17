@@ -1,9 +1,9 @@
-package com.volta.tests;
+package com.linkvalidator.tests;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.volta.core.ConfigurationReader;
-import com.volta.pojo.ExportItem;
-import com.volta.utilities.Utils;
+import com.linkvalidator.core.ConfigurationReader;
+import com.linkvalidator.pojo.ExportItem;
+import com.linkvalidator.utilities.Utils;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;

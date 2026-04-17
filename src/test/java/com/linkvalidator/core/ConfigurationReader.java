@@ -1,4 +1,4 @@
-package com.volta.core;
+package com.linkvalidator.core;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

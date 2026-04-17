@@ -1,12 +1,12 @@
-package com.volta.utilities;
+package com.linkvalidator.utilities;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.volta.core.ConfigurationReader;
-import com.volta.core.FlowMethods;
-import com.volta.pojo.ExportItem;
-import com.volta.pojo.LinkCheckItem;
-import com.volta.pojo.VerifyDataItem;
+import com.linkvalidator.core.ConfigurationReader;
+import com.linkvalidator.core.FlowMethods;
+import com.linkvalidator.pojo.ExportItem;
+import com.linkvalidator.pojo.LinkCheckItem;
+import com.linkvalidator.pojo.VerifyDataItem;
 import io.restassured.path.json.JsonPath;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

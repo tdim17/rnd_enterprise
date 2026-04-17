@@ -26,7 +26,11 @@ pipeline {
                     configFile(
                         fileId: 'dfd9e0d6-c951-4b08-b8d5-00fbac677041',
                         targetLocation: 'configuration.properties'
-                    )
+                    ),
+                    configFile(
+                            fileId: 'e2fa96d4-6a9f-4e3e-8866-bce458fee835',
+                            targetLocation: 'src/test/resources/blocked-hosts.txt'
+                        )
                 ]) {
 
                     script {
