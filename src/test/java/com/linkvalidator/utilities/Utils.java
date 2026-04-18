@@ -12,7 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -235,22 +234,10 @@ public class Utils {
 
             // Retrieves the field 'verifyData' as a String to use it with Jsoup.parse() to parse it as HTML
             String verifyDataHTML = jsPath.getString("data[" + i + "].verifyData");
-
             if (verifyDataHTML == null || verifyDataHTML.isBlank()) {
                 continue;
             }
 
-            /** For Attention - What Jsoup.parse() is for:
-             * Jsoup.parse() - parses HTML document (verifyDataHTML - in our current case) -> returns a DOM structure = Document.
-             * Document doc - allows us to use .select() for retrieving all specified tag with a specified attribute
-             *    Examples:
-             *             .select("div[class"]) -> returns all 'div' tags with 'class' attribute as a List<Element>
-             *             .select("*[href]")    -> returns all 'any' tags with 'href' attribute
-             *             .select("img[src]")   -> returns all 'img' tags with 'src' attribute
-             *                - and then .attr("attribute") for retrieving the value from a specified attribute
-             * JSON → jsonPath() → JSON structure
-             * HTML → Jsoup.parse() → DOM (Document)
-             */
             Document doc = Jsoup.parse(verifyDataHTML);
 
             // Retrieves all 'href' values and puts them on the List<LinkCheckItem> listAll
