@@ -16,11 +16,10 @@ public class TestBrokenLinks extends BaseTest {
 
         FlowMethods.cleanNdJsonFile();
 
-        final String clientId = ConfigurationReader.getProperty("Client-Id");
-
-        int idNumberLimit = Integer.parseInt(ConfigurationReader.getProperty("idNumberInResponseLimit"));
-        int offsetParam = Integer.parseInt(ConfigurationReader.getProperty("offsetParam"));
-        int iterationsLimit = Integer.parseInt(ConfigurationReader.getProperty("iterationsLimit"));
+        final String clientId   = ConfigurationReader.getProperty("Client-Id");
+        int idNumberLimit       = Integer.parseInt(ConfigurationReader.getProperty("idNumberInResponseLimit"));
+        int offsetParam         = Integer.parseInt(ConfigurationReader.getProperty("offsetParam"));
+        int iterationsLimit     = Integer.parseInt(ConfigurationReader.getProperty("iterationsLimit"));
 
         int counter = 1;
 
@@ -30,15 +29,14 @@ public class TestBrokenLinks extends BaseTest {
         System.out.println("====================================================================");
         System.out.println();
 
-
         while (true) {
             System.out.println("Iteration #" + counter);
             System.out.println("Unique URLs List:");
-            Response response = FlowMethods.getResponse(clientId, idNumberLimit, offsetParam);
 
+            Response response = FlowMethods.getResponse(clientId, idNumberLimit, offsetParam);
             List<Integer> listOfAllId = FlowMethods.retrieveListOfAllId(response);
 
-            if (listOfAllId.isEmpty() ) {
+            if (listOfAllId.isEmpty()) {
                 System.err.println("List ID is empty --> nothing to validate");
                 break;
             } else if (counter > iterationsLimit) {
@@ -54,9 +52,6 @@ public class TestBrokenLinks extends BaseTest {
         }
 
         System.out.println("Total Amount of ID = " + FlowMethods.getIdTotalCount());
-
         FlowMethods.sendReportToAPI(clientId);
-
     }
-
 }

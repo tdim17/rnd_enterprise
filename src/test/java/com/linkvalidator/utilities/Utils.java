@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -33,13 +34,9 @@ public class Utils {
      *         returns 500 if an exception occurs during the request
      */
     public static int getResponseCode(String link) {
-
         try {
-            // System.out.println("trying = " + link);
-
-            /* Object of HTTP Connection (with specified URL) */
-            HttpURLConnection conn
-                    = (HttpURLConnection) URI.create(link).toURL().openConnection();
+            HttpURLConnection conn =
+                    (HttpURLConnection) URI.create(link).toURL().openConnection();
 
             conn.setRequestProperty(
                     "User-Agent",
@@ -53,10 +50,8 @@ public class Utils {
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(3000);
             conn.setReadTimeout(3000);
-            // conn.connect(); // connection is established, Java provides a socket, sends an HTTP request and waits for the server's response.
 
-            return conn.getResponseCode(); // conn.connect() - will be established automatically!!!
-            // System.out.println("Status Code: " + responseCode);
+            return conn.getResponseCode();
 
         } catch (Exception e) {
             return 500;
@@ -98,16 +93,8 @@ public class Utils {
      * @return Set of unique LinkCheckItem objects grouped by id and link uniqueness
      */
     public static Set<LinkCheckItem> itemListUniquesExtractor(List<LinkCheckItem> listAll) {
-
         Set<LinkCheckItem> set = new LinkedHashSet<>();
         set.addAll(listAll);
-
-        for (LinkCheckItem each : set) {
-            int id = each.getId();
-            String type = each.getType();
-            String linkRaw = each.getLink();
-        }
-//        System.out.println("UniqueURLs List size = " + set.size());
         return set;
     }
 
@@ -139,9 +126,7 @@ public class Utils {
     public static void itemLIstValidator(List<LinkCheckItem> list) {
 
         Set<LinkCheckItem> setAll = itemListUniquesExtractor(list);
-
         List<LinkCheckItem> brokenLinks = new ArrayList<>();
-
         int count = 0;
 
         for (LinkCheckItem item : setAll) {
@@ -176,7 +161,6 @@ public class Utils {
         }
 
         System.out.println();
-//        System.out.println("Total Amount of ID    = " + FlowMethods.getIdTotalCount());
         System.out.println("Retrieved ID Amount   = " + FlowMethods.getIdRetrievedListSize());
         System.out.println("Amount of Raw URLs    = " + FlowMethods.getRawLinkListSize());
         System.out.println("Amount of Unique URLs = " + count);
@@ -239,49 +223,40 @@ public class Utils {
      * @param jsPath JsonPath object containing response data with embedded HTML fragments
      * @return list of all extracted links and images wrapped as LinkCheckItem objects
      */
-    public static List<LinkCheckItem> retrieveAllHrefAndSrcToList(JsonPath jsPath){
-
-        // Retrieves all href & src on the List<LinkCheckItem> listAll:
+    public static List<LinkCheckItem> retrieveAllHrefAndSrcToList(JsonPath jsPath) {
 
         int listSize = jsPath.getList("data.id").size();
-        // System.out.println("'ID' count in the response: " + listSize);
-
         List<LinkCheckItem> listAll = new ArrayList<>();
 
-        // Iterates each id element to retrieve all 'href' and all 'scr' attributes value
+        // Iterates each id element to retrieve all 'href' and all 'src' attributes value
         for (int i = 0; i < listSize; i++) {
 
             int id = jsPath.getInt("data[" + i + "].id");
 
-            // Retrieves the field 'verifyData' as a String to use it with Jsoup.parse() to parse is as an HTML
+            // Retrieves the field 'verifyData' as a String to use it with Jsoup.parse() to parse it as HTML
             String verifyDataHTML = jsPath.getString("data[" + i + "].verifyData");
-            // System.out.println("verifyData String = " + verifyDataHTML);
 
             if (verifyDataHTML == null || verifyDataHTML.isBlank()) {
                 continue;
             }
 
-
             /** For Attention - What Jsoup.parse() is for:
-             * Jsoup.parse() - parses HTML document (verifyDataHTML - in our current case) - > returns a DOM structure = Document.
+             * Jsoup.parse() - parses HTML document (verifyDataHTML - in our current case) -> returns a DOM structure = Document.
              * Document doc - allows us to use .select() for retrieving all specified tag with a specified attribute
              *    Examples:
              *             .select("div[class"]) -> returns all 'div' tags with 'class' attribute as a List<Element>
              *             .select("*[href]")    -> returns all 'any' tags with 'href' attribute
              *             .select("img[src]")   -> returns all 'img' tags with 'src' attribute
              *                - and then .attr("attribute") for retrieving the value from a specified attribute
-             * JSON → jsonPath() → структура JSON
+             * JSON → jsonPath() → JSON structure
              * HTML → Jsoup.parse() → DOM (Document)
-             *
              */
             Document doc = Jsoup.parse(verifyDataHTML);
 
-            // Retrieves all 'href' values and put them on the List<LinkCheckItem> listAll
-            Elements hrefSelect = doc.select("a[href]"); // Element in Jsoup - List<Elements> in or case it's a List of attributes = href
-            // System.out.println("hrefSelect = " + hrefSelect);
+            // Retrieves all 'href' values and puts them on the List<LinkCheckItem> listAll
+            Elements hrefSelect = doc.select("a[href]");
             for (Element hrefEach : hrefSelect) {
                 String href = hrefEach.attr("href");
-                // link.attr("href") - retrieve the value (url) from attribute 'href'
                 LinkCheckItem item = new LinkCheckItem();
                 item.setId(id);
                 item.setType("url");
@@ -289,12 +264,10 @@ public class Utils {
                 listAll.add(item);
             }
 
-            // Retrieves all 'scr' values and put them on the List<LinkCheckItem> listAll
+            // Retrieves all 'src' values and puts them on the List<LinkCheckItem> listAll
             Elements imgSelect = doc.select("img[src]");
-            // System.out.println("imgSelect = " + imgSelect);
             for (Element imgEach : imgSelect) {
                 String src = imgEach.attr("src");
-                // img.attr("src") - retrieve the value (url) from attribute 'src'
                 LinkCheckItem item = new LinkCheckItem();
                 item.setId(id);
                 item.setType("img");
@@ -317,31 +290,31 @@ public class Utils {
      * @return list of ExportItem objects structured as:
      *         id + verifyData list, ready for payload usage
      */
-    public static List<ExportItem> readFromNdJson(String file_name){
+    public static List<ExportItem> readFromNdJson(String file_name) {
 
         ObjectMapper objectMapper = new ObjectMapper(); // to read our file
 
         // Temporary indexed-Map to keep unique id:
         Map<Integer, ExportItem> payloadById = new HashMap<>();
 
-        Path path = Paths.get(file_name); // "practicing_items.ndjson"
+        Path path = Paths.get(file_name);
 
         try (BufferedReader reader = Files.newBufferedReader(path)) {
             String line;
 
-            while ((line = reader.readLine()) != null){  // reader.readLine() - read line by line
+            while ((line = reader.readLine()) != null) { // reader.readLine() - read line by line
                 if (line.isBlank()) continue;
-                // ✅ Deserialize each NDJSON line (String) into LinkCheckItem object
+
+                // Deserialize each NDJSON line (String) into LinkCheckItem object
                 LinkCheckItem item = objectMapper.readValue(line, LinkCheckItem.class);
-                // System.out.println(item);
 
                 int id = item.getId();
                 String type = item.getType();
                 String link = item.getLink();
 
-                // Finds existent id or Create a new one with the container for its data:
+                // Finds existent id or creates a new one with the container for its data:
                 ExportItem payloadRaw = payloadById.get(id);
-                if (payloadRaw == null){
+                if (payloadRaw == null) {
                     payloadRaw = new ExportItem();
                     payloadRaw.setId(id);
                     payloadRaw.setVerifyData(new ArrayList<>());
@@ -360,6 +333,7 @@ public class Utils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         return new ArrayList<>(payloadById.values());
     }
 
@@ -375,7 +349,6 @@ public class Utils {
      * @throws JsonProcessingException if serialization fails
      */
     public static String payloadFromNdJson(String file_name) throws JsonProcessingException {
-
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(readFromNdJson(file_name));
     }
@@ -391,9 +364,7 @@ public class Utils {
      * @return number of unique id elements found in the file
      */
     public static int countIdNumbers(String file_name) {
-        List<ExportItem> exportItems = readFromNdJson(file_name);
-        // System.out.println("exportItems List >>>> " + exportItems);
-        return exportItems.size();
+        return readFromNdJson(file_name).size();
     }
 
     /**
@@ -420,6 +391,4 @@ public class Utils {
         }
         return count;
     }
-
-
 }

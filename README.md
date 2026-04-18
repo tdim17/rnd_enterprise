@@ -1,149 +1,148 @@
 # rnd_enterprise — Broken Links Checker
 
-## Что это
+## What It Does
 
-Автоматизированный инструмент для поиска неработающих (broken) ссылок и изображений в контентной базе целевого сайта.
+An automated tool for detecting broken links and images across the content base of a target website.
 
-Проект работает полностью через API (без браузера): получает контент из CMS, парсит HTML, проверяет каждую ссылку и изображение на доступность, формирует отчёт о сломанных URL и отправляет его обратно в API.
+The project operates entirely via API — no browser required. It fetches content records from a CMS, parses embedded HTML, validates every link and image URL for availability, and sends a broken links report back to the API.
 
 ---
 
-## Как это работает
+## How It Works
 
-### Полный цикл за один тест
+### Full cycle per test run
 
 ```
 API (getAuthToken)
-    → получить token
-    → API (exportContentVerify) — получить пачку контент-записей
-    → распарсить HTML из поля verifyData (Jsoup)
-    → извлечь все href и src
-    → дедуплицировать
-    → нормализовать URL
-    → проверить HTTP-статус каждого URL (HttpURLConnection)
-    → сломанные записать в broken_links.ndjson
-    → повторить цикл (следующий offset)
-    → API (importContentVerify) — отправить финальный отчёт
+    → obtain auth token
+    → API (exportContentVerify) — fetch a batch of content records
+    → parse HTML from the verifyData field (Jsoup)
+    → extract all href and src values
+    → deduplicate
+    → normalize URLs
+    → check HTTP status for each URL (HttpURLConnection)
+    → write broken links to broken_links.ndjson
+    → advance offset, repeat for next batch
+    → API (importContentVerify) — submit final broken links report
 ```
 
-### Итерационная логика
+### Iteration logic
 
-Тест работает в цикле: каждая итерация запрашивает пачку записей (`limit` + `offset`), проверяет их и сдвигает `offset` на следующую пачку. Количество итераций и размер пачки управляются через конфигурационный файл (и через Jenkins-параметры при запуске в CI).
-
----
-
-## Стек
-
-| Компонент | Технология |
-|---|---|
-| Язык | Java 21 |
-| Тест-фреймворк | JUnit 5 |
-| API-тестирование | REST Assured |
-| HTML-парсинг | Jsoup |
-| JSON-сериализация | Jackson |
-| Отчёты | Allure (JUnit 5 listener) |
-| Boilerplate | Lombok |
-| Сборка | Maven |
-| CI | Jenkins |
+The test runs in a loop. Each iteration fetches a batch of records (`limit` + `offset`), validates them, and advances the offset. Batch size and iteration count are controlled via the configuration file, and overridden by Jenkins pipeline parameters at runtime.
 
 ---
 
-## Структура проекта
+## Tech Stack
+
+| Component          | Technology                |
+|--------------------|---------------------------|
+| Language           | Java 21                   |
+| Test framework     | JUnit 5                   |
+| API testing        | REST Assured              |
+| HTML parsing       | Jsoup                     |
+| JSON serialization | Jackson                   |
+| Reporting          | Allure (JUnit 5 listener) |
+| Boilerplate        | Lombok                    |
+| Build              | Maven                     |
+| CI                 | Jenkins                   |
+
+---
+
+## Project Structure
 
 ```
 src/test/java/com/linkvalidator/
 ├── core/
-│   ├── ConfigurationReader.java   — загрузка конфигурации (CI или локально)
-│   └── FlowMethods.java           — сценарный API-слой (@Step для Allure)
+│   ├── ConfigurationReader.java   — loads configuration (CI or local)
+│   └── FlowMethods.java           — API scenario layer (@Step for Allure)
 ├── pojo/
-│   ├── LinkCheckItem.java         — одна проверяемая ссылка (id, type, link)
-│   ├── ExportItem.java            — payload-запись для отправки в API (id + verifyData[])
-│   └── VerifyDataItem.java        — элемент verifyData (type + value)
+│   ├── LinkCheckItem.java         — single URL entry (id, type, link)
+│   ├── ExportItem.java            — API payload record (id + verifyData[])
+│   └── VerifyDataItem.java        — verifyData element (type + value)
 ├── tests/
-│   ├── BaseTest.java              — @BeforeAll: настройка baseURI + Allure filter
-│   ├── TestBrokenLinks.java       — основной тест (итерационный цикл)
-│   └── DraftMethods.java          — черновики / экспериментальный код (будет удалён)
+│   ├── BaseTest.java              — @BeforeAll: baseURI setup + Allure filter
+│   └── TestBrokenLinks.java       — main test (iterative validation loop)
 └── utilities/
-    ├── Utils.java                 — HTTP-проверка, Jsoup-парсинг, NDJSON-операции
-    ├── NdJsonWriter.java          — запись/очистка broken_links.ndjson
-    └── BlockedHostsProvider.java  — фильтр исключений по списку хостов
+    ├── Utils.java                 — HTTP check, HTML parsing, NDJSON operations
+    ├── NdJsonWriter.java          — write / clear broken_links.ndjson
+    └── BlockedHostsProvider.java  — host exclusion filter
 ```
 
 ---
 
-## Конфигурация
+## Configuration
 
-`configuration.properties` **не хранится в репозитории**. Файл конфигурации поставляется через Jenkins Managed Files при каждом запуске пайплайна.
+`configuration.properties` **is not stored in the repository**. It is provided by Jenkins Managed Files at runtime.
 
-Для локального запуска необходимо создать `configuration.properties` в корне проекта самостоятельно.
+For local execution, create `Configuration.properties` in the project root manually.
 
-`ConfigurationReader` автоматически определяет источник:
-- в CI — читает файл по пути из системного свойства `-DConfiguration.properties`
-- локально — читает `Configuration.properties` из корня проекта
+`ConfigurationReader` resolves the source automatically:
+- **CI** — reads from the path provided via `-DConfiguration.properties` system property
+- **Local** — reads `Configuration.properties` from the project root
 
-### Параметры итерации
+### Iteration parameters
 
-Три параметра управляют объёмом проверки за один прогон. В Jenkins они перезаписываются через параметры пайплайна (`LIMITED_ID`, `OFFSET`, `ITERATIONS_LIMIT`) — без изменения файла конфигурации.
+Three parameters control the scope of each run. In Jenkins they are overridden by pipeline parameters (`LIMITED_ID`, `OFFSET`, `ITERATIONS_LIMIT`) without modifying the config file.
 
-| Параметр | Назначение |
-|---|---|
-| `idNumberInResponseLimit` | сколько записей запрашивать за раз |
-| `offsetParam` | стартовое смещение |
-| `iterationsLimit` | максимум итераций |
-
----
-
-## Список исключений (blocked hosts)
-
-Файл со списком хостов-исключений **не хранится в репозитории** — он содержит чувствительную информацию о целевой инфраструктуре. Файл поставляется через Jenkins Managed Files аналогично конфигурации.
-
-`BlockedHostsProvider` читает список при старте и пропускает совпадающие URL без HTTP-запроса.
+| Parameter                  | Description                        |
+|----------------------------|------------------------------------|
+| `idNumberInResponseLimit`  | Number of records per batch        |
+| `offsetParam`              | Starting offset                    |
+| `iterationsLimit`          | Maximum number of iterations       |
 
 ---
 
-## Логика валидации URL
+## Host Exclusion List
 
-Метод `normalizeURL()` фильтрует ссылки перед проверкой:
+The blocked hosts file **is not stored in the repository** — it contains sensitive infrastructure details. It is provided by Jenkins Managed Files alongside the configuration file.
 
-| Входное значение | Результат |
-|---|---|
-| `null` | пропустить |
-| пустая строка | `__INVALID__` (сломана) |
-| `#anchor`, `javascript:`, `mailto:` | пропустить |
-| `/relative/path` | преобразовать в абсолютный URL |
-| `https://...` / `http://...` | проверить как есть |
-| всё остальное | `__INVALID__` (сломана) |
-
-Ссылки с HTTP-статусом ≥ 400 записываются в NDJSON как сломанные.
+`BlockedHostsProvider` loads the list at startup and skips matching URLs without making any HTTP request.
 
 ---
 
-## Отчётность
+## URL Validation Logic
 
-- **Allure Report** — генерируется автоматически после каждого прогона (локально: `mvn allure:serve`; в Jenkins: плагин Allure).
-- **broken_links.ndjson** — построчный JSON-файл со всеми сломанными ссылками. После проверки отправляется в API через `importContentVerify`.
+`normalizeURL()` filters and normalizes each raw URL before validation:
+
+| Input value                        | Result                          |
+|------------------------------------|---------------------------------|
+| `null`                             | skip                            |
+| empty string                       | `__INVALID__` (broken)          |
+| `#anchor`, `javascript:`, `mailto:`| skip                            |
+| `/relative/path`                   | resolved to absolute URL        |
+| `https://...` / `http://...`       | validated as-is                 |
+| anything else                      | `__INVALID__` (broken)          |
+
+URLs returning HTTP status ≥ 400 are written to the NDJSON report as broken.
+
+---
+
+## Reporting
+
+- **Allure Report** — generated automatically after each run. Local preview: `mvn allure:serve`. In Jenkins: published via the Allure plugin.
+- **broken_links.ndjson** — a newline-delimited JSON file containing all broken link records. Submitted to the API via `importContentVerify` at the end of each run.
 
 ---
 
 ## CI/CD
 
-`Jenkinsfile` реализует пайплайн:
+`Jenkinsfile` defines the pipeline:
 
-1. **Config file** — подкладывает `configuration.properties` и `blocked-hosts.txt` из Jenkins Managed Files, перезаписывает параметры итерации.
+1. **Config file** — injects `configuration.properties` and `blocked-hosts.txt` from Jenkins Managed Files; overrides iteration parameters.
 2. **Run tests** — `mvn clean test`.
-3. **Post: always** — публикует Allure Report.
-4. **Post: failure / unstable / aborted** — отправляет уведомление в Telegram через Bot API (токен и chat_id хранятся в Jenkins Credentials, не в коде).
+3. **Post: always** — publishes the Allure Report.
+4. **Post: failure / unstable / aborted** — sends a Telegram notification via Bot API. Credentials are stored in Jenkins Credentials Store, not in code.
 
 ---
 
-## Быстрый старт (локально)
+## Quick Start (local)
 
 ```bash
-# Запустить тест
+# Run the test
 mvn clean test
 
-# Открыть Allure Report
+# Open Allure Report
 mvn allure:serve
 ```
 
-Перед запуском создать `Configuration.properties` в корне проекта с необходимыми параметрами.
+Before running, create `Configuration.properties` in the project root with the required parameters.
