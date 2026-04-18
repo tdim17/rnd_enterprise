@@ -24,41 +24,32 @@ public class FlowMethods {
 
     @Step("Getting auth token for client: {clientId}")
     public static String getToken(String clientId) {
-
-        // RestAssured.baseURI = ConfigurationReader.getProperty("baseURI"); // I switched to the BaseTest architecture
-
         Response response = RestAssured.given()
                 .accept("application/json")
                 .header("Client-Id", clientId)
                 .when()
                 .get("getAuthToken");
 
-        // System.out.println("Status Code: " + response.statusCode());
-        // response.prettyPrint();
-
         JsonPath jsonPath = response.jsonPath();
         return jsonPath.getString("token.val");
     }
 
     @Step("Fetching content data (limit={limitedIdNumber}, offset={offsetParam})")
-    public static Response getResponse(String clientId, int limitedIdNumber, int offsetParam ) {
-
+    public static Response getResponse(String clientId, int limitedIdNumber, int offsetParam) {
         String tokenValue = getToken(clientId);
 
         return RestAssured.given()
                 .accept("application/json")
                 .header("Client-Id", clientId)
                 .queryParam("limit", limitedIdNumber)
-                .queryParam("offset", offsetParam) // я закончил на id=1000 (меньше всего ошибок с 1500 по 2000 => 0 Broken links. Всего было 4987, сейчас 4989!!)
-                //.queryParam("id", 3)
+                .queryParam("offset", offsetParam)
                 .header("Authorization", "Bearer " + tokenValue)
                 .when()
                 .get("exportContentVerify");
     }
 
     @Step("Extracting list of IDs from response")
-    public static  List<Integer> retrieveListOfAllId(Response response) {
-
+    public static List<Integer> retrieveListOfAllId(Response response) {
         idTotalCount = response.path("itemsCount");
 
         List<Integer> listId = response.path("data.id");
@@ -69,7 +60,6 @@ public class FlowMethods {
 
     @Step("Extracting all links from response")
     public static List<LinkCheckItem> retrieveListOfAllLinks(Response response) {
-
         JsonPath jsPath = response.jsonPath();
         List<LinkCheckItem> listAll = Utils.retrieveAllHrefAndSrcToList(jsPath);
         rawLinkListSize = listAll.size();
@@ -77,17 +67,12 @@ public class FlowMethods {
     }
 
     @Step("Validating links for broken URLs")
-    public static void validate(List<LinkCheckItem> listAll){
-        // Different options to use:
-        // Utils.itemLIstExtractor(listAll);
-        // Utils.itemLIstUniquesExtractor(listAll);
-        // Enterprise validator:
+    public static void validate(List<LinkCheckItem> listAll) {
         Utils.itemLIstValidator(listAll);
     }
 
     @Step("Sending broken links report to API")
     public static void sendReportToAPI(String clientId) throws IOException {
-
         String ndJsonName = ConfigurationReader.getProperty("reportNdJson");
         String payloadBody = Utils.payloadFromNdJson(ndJsonName);
 
@@ -114,6 +99,4 @@ public class FlowMethods {
     public static void cleanNdJsonFile() {
         NdJsonWriter.clear();
     }
-
-
 }

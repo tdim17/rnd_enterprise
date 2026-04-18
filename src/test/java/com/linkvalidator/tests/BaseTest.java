@@ -12,6 +12,4 @@ public class BaseTest {
         RestAssured.baseURI = ConfigurationReader.getProperty("baseURI");
         RestAssured.filters(new AllureRestAssured());
     }
-
-
 }
