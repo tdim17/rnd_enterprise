@@ -75,11 +75,12 @@ pipeline {
             withCredentials([
                 string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
             ]) {
-                sh '''
-                curl -X POST -H "Content-type: application/json" \
-                --data "{\"text\":\"✅ Build SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
-                $SLACK_URL
-                '''
+                powershell """
+                Invoke-RestMethod -Uri "${SLACK_URL}" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body '{\"text\":\"✅ Build SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}\"}'
+                """
             }
         }
 
@@ -89,11 +90,12 @@ pipeline {
             withCredentials([
                 string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
             ]) {
-                sh '''
-                curl -X POST -H "Content-type: application/json" \
-                --data "{\"text\":\"❌ Build FAILED: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
-                $SLACK_URL
-                '''
+                powershell """
+                Invoke-RestMethod -Uri "${SLACK_URL}" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body '{\"text\":\"❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}\"}'
+                """
             }
 
             // Telegram
@@ -119,11 +121,12 @@ pipeline {
             withCredentials([
                 string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
             ]) {
-                sh '''
-                curl -X POST -H "Content-type: application/json" \
-                --data "{\"text\":\"⚠️ Build UNSTABLE: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
-                $SLACK_URL
-                '''
+                powershell """
+                Invoke-RestMethod -Uri "${SLACK_URL}" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body '{\"text\":\"⚠️ Build UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}\"}'
+                """
             }
 
             // Telegram
@@ -149,11 +152,12 @@ pipeline {
             withCredentials([
                 string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
             ]) {
-                sh '''
-                curl -X POST -H "Content-type: application/json" \
-                --data "{\"text\":\"⛔ Build ABORTED: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
-                $SLACK_URL
-                '''
+                powershell """
+                Invoke-RestMethod -Uri "${SLACK_URL}" `
+                -Method Post `
+                -ContentType "application/json" `
+                -Body '{\"text\":\"⛔ Build ABORTED: ${env.JOB_NAME} #${env.BUILD_NUMBER}\"}'
+                """
             }
 
             // Telegram
