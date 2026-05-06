@@ -1,25 +1,14 @@
 pipeline {
     agent any
 
-    // Input parameters for test configuration
     parameters {
         string(name: 'LIMITED_ID', defaultValue: '3')
         string(name: 'OFFSET', defaultValue: '0')
         string(name: 'ITERATIONS_LIMIT', defaultValue: '1')
     }
 
-    // Main pipeline execution stages
     stages {
 
-        // Clone source code from repository
-        //stage('Checkout') {
-        //    steps {
-        //        git branch: 'main',
-        //        url: 'https://github.com/tdim17/rnd_enterprise.git'
-        //   }
-        // }
-
-        // Prepare and override configuration.properties
         stage('Config file') {
             steps {
                 configFileProvider([
@@ -28,36 +17,31 @@ pipeline {
                         targetLocation: 'configuration.properties'
                     ),
                     configFile(
-                            fileId: 'e2fa96d4-6a9f-4e3e-8866-bce458fee835',
-                            targetLocation: 'src/test/resources/blocked-hosts.txt'
-                        )
+                        fileId: 'e2fa96d4-6a9f-4e3e-8866-bce458fee835',
+                        targetLocation: 'src/test/resources/blocked-hosts.txt'
+                    )
                 ]) {
-
                     script {
                         def lines = readFile('configuration.properties')
-                                .split('\n')
-                                .collect { line ->
+                            .split('\n')
+                            .collect { line ->
 
-                                    if (!line.contains('=')) {
-                                        return line
-                                    }
+                                if (!line.contains('=')) return line
 
-                                    def key = line.split('=')[0].trim()
+                                def key = line.split('=')[0].trim()
 
-                                    if (key == 'idNumberInResponseLimit') {
-                                        return "idNumberInResponseLimit=${params.LIMITED_ID}"
-                                    }
-
-                                    if (key == 'offsetParam') {
-                                        return "offsetParam=${params.OFFSET}"
-                                    }
-
-                                    if (key == 'iterationsLimit') {
-                                        return "iterationsLimit=${params.ITERATIONS_LIMIT}"
-                                    }
-
-                                    return line
+                                if (key == 'idNumberInResponseLimit') {
+                                    return "idNumberInResponseLimit=${params.LIMITED_ID}"
                                 }
+                                if (key == 'offsetParam') {
+                                    return "offsetParam=${params.OFFSET}"
+                                }
+                                if (key == 'iterationsLimit') {
+                                    return "iterationsLimit=${params.ITERATIONS_LIMIT}"
+                                }
+
+                                return line
+                            }
 
                         writeFile(
                             file: 'configuration.properties',
@@ -68,76 +52,122 @@ pipeline {
             }
         }
 
-        // Execute automated tests
         stage('Run tests') {
-             steps {
+            steps {
                 bat 'type configuration.properties'
                 bat 'mvn clean test'
                 bat 'echo DEBUG_MARKER'
-                // bat 'exit 1'
             }
         }
     }
 
-    // Post-build notifications and status handling
     post {
 
-    always {
-        allure([
-            includeProperties: false,
-            jdk: '',
-            results: [[path: 'target/allure-results']]
-        ])
-    }
-
-    failure {
-        withCredentials([
-            string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
-            string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
-        ]) {
-            powershell """
-            \$msg = "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}`nAllure Report: ${env.BUILD_URL}allure"
-            Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
-            -Method Post `
-            -Body @{
-                chat_id = "${CHAT_ID}"
-                text = \$msg
-            }
-            """
+        always {
+            allure([
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'target/allure-results']]
+            ])
         }
-    }
 
-    // Telegram notification on UNSTABLE
-    unstable {
-        withCredentials([
-            string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
-            string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
-        ]) {
-            powershell """
-            \$msg = "⚠️ Build UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}"
-            Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
-            -Method Post `
-            -Body @{
-                chat_id = "${CHAT_ID}"
-                text = \$msg
+        success {
+            withCredentials([
+                string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
+            ]) {
+                sh '''
+                curl -X POST -H "Content-type: application/json" \
+                --data "{\"text\":\"✅ Build SUCCESS: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
+                $SLACK_URL
+                '''
             }
-            """
         }
-    }
 
-    // Telegram notification on ABORTED
-    aborted {
-        withCredentials([
-            string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
-            string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
-        ]) {
-            powershell """
-            \$msg = "⛔ Build ABORTED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}"
-            Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
-            -Method Post `
-            -Body @{
-                chat_id = "${CHAT_ID}"
-                text = \$msg
+        failure {
+
+            // Slack
+            withCredentials([
+                string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
+            ]) {
+                sh '''
+                curl -X POST -H "Content-type: application/json" \
+                --data "{\"text\":\"❌ Build FAILED: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
+                $SLACK_URL
+                '''
+            }
+
+            // Telegram
+            withCredentials([
+                string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
+            ]) {
+                powershell """
+                \$msg = "❌ Build FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}`nAllure: ${env.BUILD_URL}allure"
+                Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
+                -Method Post `
+                -Body @{
+                    chat_id = "${CHAT_ID}"
+                    text = \$msg
+                }
+                """
+            }
+        }
+
+        unstable {
+
+            // Slack
+            withCredentials([
+                string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
+            ]) {
+                sh '''
+                curl -X POST -H "Content-type: application/json" \
+                --data "{\"text\":\"⚠️ Build UNSTABLE: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
+                $SLACK_URL
+                '''
+            }
+
+            // Telegram
+            withCredentials([
+                string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
+            ]) {
+                powershell """
+                \$msg = "⚠️ Build UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}"
+                Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
+                -Method Post `
+                -Body @{
+                    chat_id = "${CHAT_ID}"
+                    text = \$msg
+                }
+                """
+            }
+        }
+
+        aborted {
+
+            // Slack
+            withCredentials([
+                string(credentialsId: 'SLACK_WEBHOOK_URL', variable: 'SLACK_URL')
+            ]) {
+                sh '''
+                curl -X POST -H "Content-type: application/json" \
+                --data "{\"text\":\"⛔ Build ABORTED: ${JOB_NAME} #${BUILD_NUMBER}\"}" \
+                $SLACK_URL
+                '''
+            }
+
+            // Telegram
+            withCredentials([
+                string(credentialsId: 'TELEGRAM_TOKEN', variable: 'TOKEN'),
+                string(credentialsId: 'TELEGRAM_CHAT_ID', variable: 'CHAT_ID')
+            ]) {
+                powershell """
+                \$msg = "⛔ Build ABORTED: ${env.JOB_NAME} #${env.BUILD_NUMBER}`n${env.BUILD_URL}"
+                Invoke-RestMethod -Uri "https://api.telegram.org/bot${TOKEN}/sendMessage" `
+                -Method Post `
+                -Body @{
+                    chat_id = "${CHAT_ID}"
+                    text = \$msg
                 }
                 """
             }
